@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useReducer, useState } from 'react'
 
 export type PasswordInputProps = {
   id: string
@@ -18,22 +18,18 @@ export function PasswordInput(_props: PasswordInputProps) {
   // TODO: when `disabled` is true, both the input and the button must be disabled
   // TODO: the input must NOT default to type="text" — it must start hidden ("password")
   const { disabled, id, label, value, onChange } = _props
-  const [buttonType, setButtonType] = useState('password')
-  const [buttonText, setButtonText] = useState('Show password')
-  const [isPressed, setIsPressed] = useState(false)
-
-  const toggle = () => {
-    setButtonType(prev => (prev === 'password' ? 'text' : 'password'))
-    setButtonText(prev => (prev === 'Show password' ? 'Hide password' : 'Show password'))
-    setIsPressed(prev => !prev)
-  }
+  const [buttonState, toggle] = useReducer(state => (state.isPressed ? { buttonType: 'password', buttonText: 'Show password', isPressed: false } : { buttonType: 'text', buttonText: 'Hide password', isPressed: true }), {
+    buttonType: 'password',
+    buttonText: 'Show password',
+    isPressed: false,
+  })
 
   return (
     <>
       <label htmlFor={id}>{label}</label>
-      <input aria-label='Password' type={buttonType} disabled={disabled} id={id} value={value} onChange={event => onChange(event.target.value)} />
-      <button type='button' aria-pressed={isPressed} onClick={toggle} disabled={disabled}>
-        {buttonText}
+      <input aria-label='Password' type={buttonState.buttonType} disabled={disabled} id={id} value={value} onChange={event => onChange(event.target.value)} />
+      <button type='button' aria-pressed={buttonState.isPressed} onClick={toggle} disabled={disabled}>
+        {buttonState.buttonText}
       </button>
     </>
   )
